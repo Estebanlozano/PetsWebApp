@@ -1,0 +1,118 @@
+﻿@using PetsWebApp.Core.Static;
+@using PetsWebApp.Web.ViewModels;
+@using System.Security.Claims;
+
+@model PetViewModel
+
+<div class="container">
+    <div class="row">
+        <div class="col-8">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">@Model.Name</h5>
+                    <p class="card-text"><strong>Age:</strong> @Model.Age</p>
+                    <p class="card-text"><strong>Is castrated:</strong> @(Model.Castrated ? "Yes" : "No")</p>
+                    <p class="card-text"><strong>Description:</strong> @Model.Description</p>
+                    @*
+                    TODO edit if current user is owner
+                    <a asp-controller="Pet" asp-action="View" asp-route-id="@Model.Id" class="btn btn-primary">See details</a>
+                    *@
+                </div>
+            </div>
+
+            @Html.HiddenFor(m=>m.Id)
+
+        </div>
+
+        <div class="col-4">
+            @if (Model.Photos is not null)
+            {
+                foreach (var photo in Model.Photos)
+                {
+                    <img class="img-fluid mb-2" src="@(photo is not null ? "/" : string.Empty)@(photo ?? @Constants.DefaultImage)" alt="Card image cap" style="max-width: 48%">
+                }
+            }
+        </div>
+    </div>
+
+    @{
+        string ActuallyUser = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        Guid currentUserId = new Guid(ActuallyUser);
+    }
+
+
+    @if (Model.UserId != currentUserId)
+    {
+        <div id="boton-adoption">
+            <br />
+            <a asp-controller="RequestAdoption" asp-action="Index" method="post" asp-route-petId="@Model.Id" class="btn btn-success"> Apply for Adoption</a>
+        </div>
+    }
+
+    else
+    {
+        <a href="javascript:;" class="btn btn-outline-danger" onclick="onDeleteClick(event, '@Model.Id')"> Delete pet</a>
+    }
+
+
+</div>
+
+<script>
+    function onDeleteClick(e, id) 
+    {
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: 'btn btn-success',
+                cancelButton: 'btn btn-danger'
+            },
+            buttonsStyling: false
+        })
+
+        swalWithBootstrapButtons.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'No, cancel!',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch(`/Pet/Delete/${id}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                })
+                    .then(response => {
+                        if (response.ok) {
+                        } else if (response.status === 404) {
+                            alert('Pet not found');
+                        } else {
+                            alert('An error occurred while deleting the pet');
+                        }
+                    })
+                    .catch(error => {
+                        alert('An error occurred:', error);
+                    });
+                swalWithBootstrapButtons.fire(
+                    'Deleted!',
+                    'Your file has been deleted.',
+                    'success'
+                )
+
+                window.location.href = '/Pet/Index'
+            } else if (
+                /* Read more about handling dismissals below */
+                result.dismiss === Swal.DismissReason.cancel
+            ) {
+                swalWithBootstrapButtons.fire(
+                    'Cancelled',
+                    'Your imaginary file is safe :)',
+                    'error'
+                )
+            }
+        })
+
+    }
+</script>  

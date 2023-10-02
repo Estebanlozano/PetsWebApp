@@ -1,0 +1,102 @@
+﻿@using PetsWebApp.Web.ViewModels;
+
+@model PetViewModel
+
+<div class="container">
+    
+    <div class="row mt-5">
+        <div class="col">
+            <h1>Create a Pet</h1>
+        </div>
+    </div>
+
+    @{
+        await Html.RenderPartialAsync("_Errors");
+    }
+
+    <div class="row">
+        <div id="images-preview">
+
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col">
+            @using (Html.BeginForm("Save", "Pet", FormMethod.Post, new { enctype = "multipart/form-data" }))
+            {
+                @Html.HiddenFor(m => m.Id)
+
+                @Html.ValidationSummary(true, "Please fill the missing fields")
+
+                <input id="existing-images" type="hidden" value="@string.Join(',', Model.Photos ?? Enumerable.Empty<string>())" />
+
+                <div class="form-group mt-3">
+                    @Html.LabelFor(m => m.Name)
+                    @Html.TextBoxFor(m => m.Name, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(m => m.Name)
+                </div>
+                <div class="form-group mt-3">
+                    @Html.LabelFor(m => m.Description)
+                    @Html.TextAreaFor(m => m.Description, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(m => m.Description)
+                </div>
+                <div class="form-group mt-3">
+                    @Html.LabelFor(m => m.Age)
+                    @Html.TextBoxFor(m => m.Age, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(m => m.Age)
+                </div>
+                <div class="checkbox mt-3">
+                    @Html.CheckBoxFor(m => m.Castrated)
+                    <label class="form-check-label" for="flexCheckDefault">Castrado? </label>
+                </div>
+
+                <div class="form-group mt-3">
+                    <label for="Images" class="form-label">Images</label>
+                    <input class="form-control" type="file" id="Images" name="Images" accept="image/*" multiple>
+                    @Html.ValidationMessageFor(m => m.Photos)
+                </div>
+
+                <button type="submit" class="btn btn-success mt-3"> Save</button>
+            }
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('Images').addEventListener('change', function (e) {
+        
+        let imagesContainer = document.getElementById('images-preview');
+        imagesContainer.innerHTML = '';
+
+        for (let i = 0; i < e.target.files.length; i++) {
+            let file = e.target.files[i];
+            let url = window.URL.createObjectURL(file);
+
+            let imgElement = document.createElement('img');
+            imgElement.src = url;
+            imgElement.width = 100;
+            imgElement.height = 100;
+            imgElement.classList.add('me-2');
+
+            imagesContainer.appendChild(imgElement)
+        }
+
+        let existingImagesContainer = document.getElementById('existing-images');
+        if (!existingImagesContainer.value || existingImagesContainer.value == '') {
+            return;
+        }
+
+        let existingImages = existingImagesContainer.value.split(',');
+        for (let i = 0; i < existingImages.length; i++) {
+            let url = existingImages[i];
+
+            let imgElement = document.createElement('img');
+            imgElement.src = url;
+            imgElement.width = 100;
+            imgElement.height = 100;
+            imgElement.classList.add('me-2');
+
+            imagesContainer.appendChild(imgElement)
+        }
+    });
+</script>

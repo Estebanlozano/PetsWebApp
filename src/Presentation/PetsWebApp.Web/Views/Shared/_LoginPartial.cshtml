@@ -1,0 +1,46 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using PetsWebApp.Application.Services;
+@using System.Security.Claims;
+@using PetsWebApp.Core.Entities;
+@using PetsWebApp.Core.Interfaces.Services;
+
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+@inject IUserProfileService profileService
+
+@{
+    string avatar = string.Empty;
+    if (User.Claims.Any())
+    {
+        UserProfile? profile = await profileService.GetUser(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
+        avatar = profile?.Avatar ?? "https://placehold.co/400x400";
+    }
+}
+
+<ul class="navbar-nav">
+@if (SignInManager.IsSignedIn(User))
+{
+    <li class="nav-item">
+        <a  class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @User.Identity?.Name!</a>
+    </li>
+    <li class="nav-item">
+        <form  class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+            <button  type="submit" class="nav-link btn btn-link text-dark">Logout</button>
+        </form>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link text-dark" asp-controller="UserProfile" asp-action="Index">
+            <img src="@avatar" class="rounded mx-auto d-block" alt="User profile image" height="30" width="30">
+        </a>
+    </li>
+}
+else
+{
+    <li class="nav-item">
+        <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Register">Register</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Login">Login</a>
+    </li>
+}
+</ul>

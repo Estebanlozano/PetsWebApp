@@ -1,0 +1,86 @@
+﻿@using PetsWebApp.Web.ViewModels;
+@model PetPostViewModel
+@{
+    ViewData["Title"] = "FormPetPost";
+}
+
+<h1>Create a Pet Post</h1>
+@if (ViewBag.Errors != null)
+{
+    var errors = (IEnumerable<string>)ViewBag.Errors;
+    foreach (var error in errors)
+    {
+        <div class="row">
+            <div class="col">
+                <div class="alert alert-danger" role="alert">
+                    @error 
+                </div>
+            </div>
+        </div>
+    }
+}
+
+@using (Html.BeginForm("Save", "PetPost", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    @Html.ValidationSummary(true,"por Favor llene los campos faltantes");
+    <div class="form-group">
+
+        @Html.LabelFor(m => m.Title)
+        @Html.TextBoxFor(m => m.Title, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Title)
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.PetPostDescription)
+        @Html.TextAreaFor(m => m.PetPostDescription, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.PetPostDescription)
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.Description)
+        @Html.TextAreaFor(m => m.Description, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Description)
+    </div>
+
+    
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.Name)
+        @Html.TextBoxFor(m => m.Name, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Name)
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.Age)
+        @Html.TextBoxFor(m => m.Age, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Age)
+
+    </div>
+    <div class="form-group mb-4">
+        <label for="Images" class="form-label">Images</label>
+        <input class="form-control" type="file" id="Images" name="Images" accept="image/*" multiple>
+        @Html.ValidationMessageFor(m => m.Photos)
+    </div>
+  
+  
+
+    <br />
+    <div class="checkbox">
+        @Html.CheckBoxFor(m => m.Castrated)
+        <label class="form-check-label" for="flexCheckDefault">Castrado? </label>
+    </div>
+
+    <br/>
+    
+    @Html.HiddenFor(m => m.Id)
+    @Html.HiddenFor(m => m.PetPostId)
+    
+
+    @Html.AntiForgeryToken()
+
+    <button type="submit"  class="btn btn-success"> Save</button>
+
+    <button type="submit" class="btn btn-link"> Edit</button>
+
+}
+
+

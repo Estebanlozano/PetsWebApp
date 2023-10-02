@@ -1,0 +1,14 @@
+﻿@if (ViewBag.Errors is not null)
+{
+    var errors = (IEnumerable<string>)ViewBag.Errors;
+    foreach (var error in errors)
+    {
+        <div class="row mt-5">
+            <div class="col">
+                <div class="alert alert-danger" role="alert">
+                    @error
+                </div>
+            </div>
+        </div>
+    }
+}
